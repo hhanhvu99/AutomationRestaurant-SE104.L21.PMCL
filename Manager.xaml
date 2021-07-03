@@ -55,12 +55,12 @@
                         <!-- Create, edit and delete -->
                         <DockPanel Margin="0 2">
                             <TextBlock Text="ID:" MinWidth="60" Margin="3 0"/>
-                            <TextBox x:Name="accountID" FontWeight="Light" Padding="2" PreviewTextInput="NumberValidationTextBox"/>
+                            <TextBox x:Name="accountID" FontWeight="Light" Padding="2" PreviewTextInput="NumberValidationTextBox" MaxLength="8"/>
                         </DockPanel>
 
                         <DockPanel Margin="0 2">
                             <TextBlock Text="Pass:" MinWidth="60" Margin="3 0"/>
-                            <TextBox x:Name="accountPassword" FontWeight="Light" Padding="2"/>
+                            <TextBox x:Name="accountPassword" FontWeight="Light" Padding="2" MaxLength="25"/>
                         </DockPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="0 2">
@@ -74,10 +74,10 @@
                             </ComboBox>
 
                             <TextBlock Text="First Name:" MinWidth="90" Margin="10 0 0 0"/>
-                            <TextBox x:Name="accountFirstName" MinWidth="100" FontWeight="Light" Padding="2"/>
+                            <TextBox x:Name="accountFirstName" MinWidth="100" FontWeight="Light" Padding="2" PreviewTextInput="TextValidationTextBox" MaxLength="12"/>
 
                             <TextBlock Text="Last Name:" MinWidth="90" Margin="10 0 0 0"/>
-                            <TextBox x:Name="accountLastName" MinWidth="100" FontWeight="Light" Padding="2"/>
+                            <TextBox x:Name="accountLastName" MinWidth="100" FontWeight="Light" Padding="2" PreviewTextInput="TextValidationTextBox" MaxLength="12"/>
                         </StackPanel>
 
                         <!-- Create button -->
@@ -138,17 +138,17 @@
                         <!-- Create, edit and delete -->
                         <DockPanel Margin="0 2">
                             <TextBlock Text="Food:" MinWidth="100" Margin="3 0"/>
-                            <TextBox x:Name="foodName" FontWeight="Light" Padding="2"/>
+                            <TextBox x:Name="foodName" FontWeight="Light" Padding="2" MaxLength="25"/>
                         </DockPanel>
 
                         <DockPanel Margin="0 2">
                             <TextBlock Text="Ingredient:" MinWidth="100" Margin="3 0"/>
-                            <TextBox x:Name="ingredientText" FontWeight="Light" Padding="2"/>
+                            <TextBox x:Name="ingredientText" FontWeight="Light" Padding="2" MaxLength="40"/>
                         </DockPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="0 2">
                             <TextBlock Text="Price:" MinWidth="100" Margin="3 0"/>
-                            <TextBox x:Name="price" FontWeight="Light" Padding="2" MinWidth="100" PreviewTextInput="NumberValidationTextBox"/>
+                            <TextBox x:Name="price" FontWeight="Light" Padding="2" MinWidth="100" PreviewTextInput="NumberValidationTextBox" MaxLength="8"/>
                         </StackPanel>
 
                         <!-- Create button -->
@@ -193,12 +193,12 @@
                         <!-- Create, edit and delete -->
                         <DockPanel Margin="0 2">
                             <TextBlock Text="Name:" MinWidth="80" Margin="3 0"/>
-                            <TextBox x:Name="ingredientName" FontWeight="Light" Padding="2"/>
+                            <TextBox x:Name="ingredientName" FontWeight="Light" Padding="2" PreviewTextInput="TextValidationTextBox" MaxLength="25"/>
                         </DockPanel>
 
                         <DockPanel Margin="0 2">
                             <TextBlock Text="Quantity:" MinWidth="80" Margin="3 0"/>
-                            <TextBox x:Name="ingredientQuantity" FontWeight="Light" Padding="2" PreviewTextInput="NumberValidationTextBox"/>
+                            <TextBox x:Name="ingredientQuantity" FontWeight="Light" Padding="2" PreviewTextInput="NumberValidationTextBox" MaxLength="8"/>
                         </DockPanel>
 
 
@@ -249,12 +249,12 @@
 
                         <DockPanel Margin="0 2">
                             <TextBlock Text="Hour:" MinWidth="60" Margin="3 0"/>
-                            <TextBox x:Name="hourWork" FontWeight="Light" Padding="2" MinWidth="100" PreviewTextInput="NumberValidationTextBox"/>
+                            <TextBox x:Name="hourWork" FontWeight="Light" Padding="2" MinWidth="100" PreviewTextInput="NumberValidationTextBox" MaxLength="8"/>
                         </DockPanel>
 
                         <DockPanel Margin="0 2">
                             <TextBlock Text="Salary:" MinWidth="60" Margin="3 0"/>
-                            <TextBox x:Name="salary" FontWeight="Light" Padding="2" MinWidth="100" PreviewTextInput="NumberValidationTextBox"/>
+                            <TextBox x:Name="salary" FontWeight="Light" Padding="2" MinWidth="100" PreviewTextInput="NumberValidationTextBox" MaxLength="8"/>
                         </DockPanel>
 
                         <!-- Create button -->

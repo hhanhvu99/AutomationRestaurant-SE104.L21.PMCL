@@ -32,7 +32,7 @@ namespace DoAnCuoiKi
         public int id { get; set; }
         public string fname { get; set; }
         public string lname { get; set; }
-        public float wage { get; set; }
+        public int wage { get; set; }
         public string password { get; set; }
         public string type { get; set; }
         public int hoursWork { get; set; }
@@ -401,6 +401,12 @@ namespace DoAnCuoiKi
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void TextValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^a-zA-Z]+");
             e.Handled = regex.IsMatch(e.Text);
         }
 

@@ -26,7 +26,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Text="ID" FontSize="12"/>
-                    <TextBox x:Name="usernameID" Padding="2" Grid.Column="1" PreviewTextInput="NumberValidationTextBox"/>
+                    <TextBox x:Name="usernameID" Padding="2" Grid.Column="1" PreviewTextInput="NumberValidationTextBox" MaxLength="8"/>
 
                 </Grid>
 
@@ -39,7 +39,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Text="Password" FontSize="12" Grid.ColumnSpan="2"/>
-                    <PasswordBox x:Name="password" Padding="2" Grid.Column="2"/>
+                    <PasswordBox x:Name="password" Padding="2" Grid.Column="2" MaxLength="25"/>
 
                 </Grid>
 

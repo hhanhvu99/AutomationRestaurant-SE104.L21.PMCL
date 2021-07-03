@@ -138,7 +138,7 @@
                                 <DockPanel Margin="0 3">
                                     <TextBlock Text="Dish:" FontWeight="DemiBold" MinWidth="30"/>
                                     <ComboBox x:Name="foodNameBox" MinWidth="70" MaxWidth="70" Margin="0 0 5 0" SelectionChanged="FoodNameBox_SelectionChanged"/>
-                                    <TextBox x:Name="foodQuantityBox" PreviewTextInput="NumberValidationTextBox"/>
+                                    <TextBox x:Name="foodQuantityBox" PreviewTextInput="NumberValidationTextBox" MaxLength="3"/>
                                 </DockPanel>
 
                                 <!-- Order button -->

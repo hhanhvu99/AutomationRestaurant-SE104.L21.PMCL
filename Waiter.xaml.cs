@@ -57,6 +57,22 @@ namespace DoAnCuoiKi
 
     }
 
+    class OrderInfo
+    {
+        public OrderInfo(string name, int quantity, string recipe, int id)
+        {
+            this.name = name;
+            this.quantity = quantity;
+            this.id = id;
+            this.recipe = recipe;
+        }
+        public string name { get; set; }
+        public int quantity { get; set; }
+        public int id { get; set; }
+        public string recipe { get; set; }
+
+    }
+
     class AvailableDish
     {
         public int id { get; set; }
@@ -87,14 +103,16 @@ namespace DoAnCuoiKi
         int selectedComboBox = -1;
         // Previous selected food menu
         int oldSelectedComboBox = -1;
+        // Current selected order food
+        int selectedOrderComboBox = -1;
         bool changeTextQuantity = false;
 
         CancellationToken token = new CancellationToken();
 
         TableInfo[] tableOccupied;
         Table[] assignedTable;
-        Dishes[] availableDishes;
-        List<FoodInfo> foodSource = new List<FoodInfo>();
+        List<Dishes> availableDishes = new List<Dishes>();
+        List<OrderInfo> foodSource = new List<OrderInfo>();
         Button[] tableButton = new Button[6];
 
         Thread thread = new Thread(() => { });
@@ -441,6 +459,7 @@ namespace DoAnCuoiKi
                 return;
 
             // Loop through available dishes and add them to list
+            availableDishes.Clear();
             foreach (AvailableDish dish in tableAvailableDish)
             {
                 if (currentID != dish.id)
@@ -463,7 +482,7 @@ namespace DoAnCuoiKi
             }
 
             dishes.Add(temp);
-            availableDishes = dishes.ToArray();
+            availableDishes = dishes;
 
             // Check if app is closed
             if (token.IsCancellationRequested)
@@ -509,14 +528,42 @@ namespace DoAnCuoiKi
 
                         // Update total price
                         float total = 0;
-                        foreach (FoodInfo food in foodSource)
+                        int index = 0;
+                        foreach (OrderInfo food in foodSource)
                         {
-                            total += food.quantity * availableDishes[food.id - 1].pricePerDish;
+                            index = availableDishes.FindIndex(x => x.id == food.id);
+
+                            if (index == -1)
+                                continue;
+
+                            total += food.quantity * availableDishes[index].pricePerDish;
                         }
                         this.totalPrice.Text = total.ToString();
 
                         if (tableStatus.Equals("Waiting") && this.assignedTable[currentSelected - 1].employeeid == this.waiterID)
                         {
+                            // Add to combobox
+                            string item = "";
+
+                            foreach (Dishes dish in availableDishes)
+                            {
+                                item = dish.id.ToString() + '-' + dish.name + '-' + dish.pricePerDish.ToString();
+                                this.foodNameBox.Items.Add(item);
+                            }
+                            
+                            for (int i=0; i<foodSource.Count; ++i)
+                            {
+                                OrderInfo orderDish = foodSource[i];
+
+                                index = availableDishes.FindIndex(x => x.id == orderDish.id);
+
+                                if (index == -1)
+                                {
+                                    this.selectedOrderComboBox = i;
+                                    DeleteOrderButton_Click(null, null);
+                                }
+                            }
+
                             this.orderTable.ItemsSource = foodSource;
                             this.orderTable.Items.Refresh();
                             this.foodNameBox.IsEnabled = true;
@@ -529,15 +576,9 @@ namespace DoAnCuoiKi
                             this.deliverButton.IsEnabled = false;
                             this.billButton.IsEnabled = false;
 
-                            // Add to combobox
-                            string item = "";
-                            foreach (Dishes dish in availableDishes)
-                            {
-                                item = dish.id.ToString() + '-' + dish.name + '-' + dish.pricePerDish.ToString();
-                                this.foodNameBox.Items.Add(item);
-                            }
-
                             this.foodNameBox.SelectedIndex = selectedComboBox;
+
+
                         }
                         else
                         {
@@ -698,8 +739,8 @@ namespace DoAnCuoiKi
                 return;
 
             // Get index of dishes in the database
-            int index = Convert.ToInt32(((ComboBox)sender).SelectedValue.ToString().Split('-')[0]);
             this.selectedComboBox = ((ComboBox)sender).SelectedIndex;
+            int index = this.selectedComboBox;
 
             // Change quantity of a dish in the quantity field 
             // If quantity field is empty or allow to change
@@ -707,13 +748,13 @@ namespace DoAnCuoiKi
             {
                 this.changeTextQuantity = false;
                 this.oldSelectedComboBox = this.selectedComboBox;
-                this.foodQuantityBox.Text = availableDishes[index - 1].quantity.ToString();
+                this.foodQuantityBox.Text = availableDishes[index].quantity.ToString();
             }
             // If the selected box is different from the old one or the quantity in the field is higher than the available quantity of a dish
-            else if (this.selectedComboBox != this.oldSelectedComboBox || Convert.ToInt32(this.foodQuantityBox.Text) > availableDishes[index - 1].quantity)
+            else if (this.selectedComboBox != this.oldSelectedComboBox || Convert.ToInt32(this.foodQuantityBox.Text) > availableDishes[index].quantity)
             {
                 this.oldSelectedComboBox = this.selectedComboBox;
-                this.foodQuantityBox.Text = availableDishes[index - 1].quantity.ToString();
+                this.foodQuantityBox.Text = availableDishes[index].quantity.ToString();
             }
 
             
@@ -731,15 +772,22 @@ namespace DoAnCuoiKi
             FoodInfo currentSelected = (FoodInfo)this.orderTable.SelectedItem;
 
             if (currentSelected == null)
+            {
+                this.selectedOrderComboBox = -1;
                 return;
+            }
+                
             if (this.foodNameBox.IsEnabled == false)
             {
                 this.orderTable.SelectedIndex = -1;
                 return;
             }
 
-            this.foodNameBox.SelectedIndex = currentSelected.id - 1;
-            this.foodQuantityBox.Text = availableDishes[currentSelected.id - 1].quantity.ToString();
+            this.selectedOrderComboBox = this.orderTable.SelectedIndex;
+            int index = availableDishes.FindIndex(x => x.id == currentSelected.id);
+
+            this.foodNameBox.SelectedIndex = index;
+            this.foodQuantityBox.Text = availableDishes[index].quantity.ToString();
         }
 
         // This function write order in the Order table, and query to the database to deduct the necessary ingredients
@@ -752,8 +800,8 @@ namespace DoAnCuoiKi
             // Current available quantity of a dish
             int currentAmount = Convert.ToInt32(this.foodQuantityBox.Text);
             // Get dish's index
-            int index = Convert.ToInt32(((ComboBox)this.foodNameBox).SelectedValue.ToString().Split('-')[0]);
-            Dishes currentDish = availableDishes[index - 1];
+            int index = this.selectedComboBox;
+            Dishes currentDish = availableDishes[index];
 
             // Check ingredients 
             if (currentAmount == 0 || currentAmount > currentDish.quantity)
@@ -781,11 +829,11 @@ namespace DoAnCuoiKi
             
             if (index != -1)
             {
-                foodSource[index] = new FoodInfo(currentDish.name, foodSource[index].quantity + currentAmount, currentDish.id);
+                foodSource[index] = new OrderInfo(currentDish.name, foodSource[index].quantity + currentAmount, currentDish.recipe, currentDish.id);
             }
             else
             {
-                foodSource.Add(new FoodInfo(currentDish.name, currentAmount, currentDish.id));
+                foodSource.Add(new OrderInfo(currentDish.name, currentAmount, currentDish.recipe, currentDish.id));
             }
 
             thread = new Thread(Refresh);
@@ -795,29 +843,33 @@ namespace DoAnCuoiKi
         // This function delete order from Order tablem and query to database to plus all necessary ingredients
         private void DeleteOrderButton_Click(object sender, RoutedEventArgs e)
         {
+            bool directCall = false;
+
+            if (sender is null)
+                directCall = true;
+
             // Lost connection or thread is running
             if (this.confirmStatus.Text == "Connection Lost." || thread.IsAlive)
                 return;
 
             // Check if there is any dishes
-            if (this.orderTable.Items.Count == 0)
+            if (this.orderTable.Items.Count == 0 || this.selectedOrderComboBox == -1)
             {
                 System.Windows.MessageBox.Show("No dishes to delete.");
                 return;
             }
 
             // Get dish's index
-            int index = Convert.ToInt32(((ComboBox)this.foodNameBox).SelectedValue.ToString().Split('-')[0]);
-            Dishes currentDish = availableDishes[index - 1];
+            OrderInfo foodToDelete = foodSource[this.selectedOrderComboBox];
 
-            // Check if item is in list
-            index = foodSource.FindIndex(x => x.id == currentDish.id);
+            // Find item in menu
+            int index = availableDishes.FindIndex(x => x.id == foodToDelete.id);
 
             // If found dish
             if (index != -1)
             {
-                int currentAmount = foodSource[index].quantity;
-                List<FoodInfo> recipeList = GetFoodInfo(currentDish.recipe);
+                int currentAmount = foodSource[this.selectedOrderComboBox].quantity;
+                List<FoodInfo> recipeList = GetFoodInfo(availableDishes[index].recipe);
 
                 string command = "UPDATE ingredients SET quantity = quantity + @amount WHERE id = @id";
                 DynamicParameters parameter = new DynamicParameters();
@@ -830,17 +882,47 @@ namespace DoAnCuoiKi
                     QueryExecute(command, parameter);
                 }
 
-                foodSource.RemoveAt(index);
+                foodSource.RemoveAt(this.selectedOrderComboBox);
                 this.changeTextQuantity = true;
+                this.selectedOrderComboBox = -1;
             }
             else
             {
-                System.Windows.MessageBox.Show("Cannot found the dish.");
-                return;
+                if (!directCall)
+                {
+                    System.Windows.MessageBox.Show("Cannot found the dish.");
+                    return;
+                }
+                else
+                {
+                    int currentAmount = foodSource[this.selectedOrderComboBox].quantity;
+                    List<FoodInfo> recipeList = GetFoodInfo(foodSource[this.selectedOrderComboBox].recipe);
+
+                    string command = "UPDATE ingredients SET quantity = quantity + @amount WHERE id = @id";
+                    DynamicParameters parameter = new DynamicParameters();
+
+                    foreach (FoodInfo ingredient in recipeList)
+                    {
+                        parameter.Add("@amount", currentAmount * ingredient.quantity);
+                        parameter.Add("@id", ingredient.name);
+
+                        QueryExecute(command, parameter);
+                    }
+
+                    foodSource.RemoveAt(this.selectedOrderComboBox);
+                    this.changeTextQuantity = true;
+                    this.selectedOrderComboBox = -1;
+
+                }
+                
             }
 
-            thread = new Thread(Refresh);
-            thread.Start();
+            if (!directCall)
+            {
+                thread = new Thread(Refresh);
+                thread.Start();
+            }
+            
         }
 
         // This function create query to 2 table: _order and orderdetail
@@ -866,7 +948,7 @@ namespace DoAnCuoiKi
             DynamicParameters parameter = new DynamicParameters();
             float total = 0;
 
-            foreach (FoodInfo food in foodSource)
+            foreach (OrderInfo food in foodSource)
             {
                 Dishes currentDish = availableDishes[food.id - 1];
                 total += currentDish.pricePerDish * food.quantity;
@@ -894,7 +976,7 @@ namespace DoAnCuoiKi
             // Add to orderdetail
             command = "INSERT INTO orderdetail (orderid, foodid, quantity, status) VALUES (@orderid, @foodid, @quantity, 'Waiting')";
 
-            foreach (FoodInfo food in foodSource)
+            foreach (OrderInfo food in foodSource)
             {
                 Dishes currentDish = availableDishes[food.id - 1];
 
