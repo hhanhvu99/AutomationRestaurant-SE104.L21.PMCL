@@ -455,7 +455,7 @@ namespace DoAnCuoiKi
                     // Popularity
                     case 1:
                         // Get record
-                        command = "SELECT tableOrder.timeordered, tableOrder.id, tableOrder.quantity FROM (SELECT timeordered FROM _order ORDER BY id DESC LIMIT 1) AS lastRecord, (SELECT timeordered, food.id, quantity FROM _order, orderdetail, food WHERE _order.status = 'Done' AND _order.id = orderdetail.orderid AND orderdetail.foodid = food.id) AS tableOrder WHERE tableOrder.timeordered > lastRecord.timeordered - INTERVAL 1 DAY";
+                        command = "SELECT tableOrder.timeordered, tableOrder.id, tableOrder.quantity FROM (SELECT timeordered FROM _order ORDER BY id DESC LIMIT 1) AS lastRecord, (SELECT timeordered, food.id, quantity FROM _order, orderdetail, food WHERE _order.status = 'Done' AND _order.id = orderdetail.orderid AND orderdetail.foodid = food.id) AS tableOrder WHERE tableOrder.timeordered > lastRecord.timeordered - INTERVAL 1 DAY ORDER BY tableOrder.timeordered";
                         List<PopularityChart> popularity = QueryGetPopularity(command, null);
                         Dictionary<int, int>[] popularityArray = new Dictionary<int, int>[24];
 
@@ -476,7 +476,6 @@ namespace DoAnCuoiKi
                                 popularityArray[i].Add(food.id, 0);
                             }
                         }
-                            
 
                         // Count dishes
                         foreach (var record in popularity)
@@ -664,7 +663,7 @@ namespace DoAnCuoiKi
                     // Popularity
                     case 1:
                         // Get record
-                        command = "SELECT tableOrder.timeordered, tableOrder.id, tableOrder.quantity FROM (SELECT timeordered FROM _order ORDER BY id DESC LIMIT 1) AS lastRecord, (SELECT timeordered, food.id, quantity FROM _order, orderdetail, food WHERE _order.status = 'Done' AND _order.id = orderdetail.orderid AND orderdetail.foodid = food.id) AS tableOrder WHERE tableOrder.timeordered > lastRecord.timeordered - INTERVAL 21 DAY";
+                        command = "SELECT tableOrder.timeordered, tableOrder.id, tableOrder.quantity FROM (SELECT timeordered FROM _order ORDER BY id DESC LIMIT 1) AS lastRecord, (SELECT timeordered, food.id, quantity FROM _order, orderdetail, food WHERE _order.status = 'Done' AND _order.id = orderdetail.orderid AND orderdetail.foodid = food.id) AS tableOrder WHERE tableOrder.timeordered > lastRecord.timeordered - INTERVAL 21 DAY ORDER BY tableOrder.timeordered";
                         List<PopularityChart> popularity = QueryGetPopularity(command, null);
                         Dictionary<int, int>[] popularityArray = new Dictionary<int, int>[21];
 
